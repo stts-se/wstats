@@ -338,15 +338,15 @@ func main() {
 	printDur := end.Sub(loaded) - end.Sub(loaded)%time.Millisecond
 	totalDur := end.Sub(start) - end.Sub(start)%time.Millisecond
 
-	log.Print("Load took             : ", fmt.Sprintf("%12v\n", loadDur))
-	log.Print("Print took            : ", fmt.Sprintf("%12v\n", printDur))
-	log.Print("Total dur             : ", fmt.Sprintf("%12v\n", totalDur))
+	log.Print("Load took            : ", fmt.Sprintf("%12v\n", loadDur))
+	log.Print("Print took           : ", fmt.Sprintf("%12v\n", printDur))
+	log.Print("Total dur            : ", fmt.Sprintf("%12v\n", totalDur))
 
-	log.Print("No. of pages          : ", lIntPrettyPrint(nPages))
-	log.Print("No. of redirects      : ", lIntPrettyPrint(nRedirects))
-	log.Print("No. of lines          : ", lIntPrettyPrint(nLines))
-	log.Print("No. of skipped lines  : ", lIntPrettyPrint(nLinesSkipped))
-	log.Print("No. of words          : ", lIntPrettyPrint(nWords))
-	log.Print("No. of unique words   : ", lIntPrettyPrint(len(wordFreqs)))
+	log.Print("No. of pages         : ", lIntPrettyPrint(nPages))
+	log.Print("No. of redirects     : ", lIntPrettyPrint(nRedirects))
+	log.Print("No. of lines         : ", lIntPrettyPrint(nLines))
+	log.Print("No. of skipped lines : ", lIntPrettyPrint(nLinesSkipped))
+	log.Print("No. of words         : ", lIntPrettyPrint(nWords))
+	log.Print("No. of unique words  : ", lIntPrettyPrint(len(wordFreqs)))
 
 }
