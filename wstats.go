@@ -20,8 +20,8 @@ import (
 func SplitWhiteSpace(s string) []string {
 	splitted := strings.Split(s, " ")
 	result := make([]string, 0)
-	for _, v0 := range splitted {
-		v := strings.TrimSpace(v0)
+	for _, v := range splitted {
+		v = strings.TrimSpace(v)
 		if len(v) > 0 {
 			result = append(result, v)
 		}
@@ -29,6 +29,7 @@ func SplitWhiteSpace(s string) []string {
 	return result
 }
 
+// start: sorting 
 func SortByWordCount(wordFrequencies map[string]int) FreqList {
 	pl := make(FreqList, len(wordFrequencies))
 	i := 0
@@ -49,11 +50,11 @@ type FreqList []Freq
 func (p FreqList) Len() int           { return len(p) }
 func (p FreqList) Less(i, j int) bool { return p[i].Value < p[j].Value }
 func (p FreqList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+// end: sorting
 
 // end: util
 
-// start: xml parsing
-// http://blog.davidsingleton.org/parsing-huge-xml-files-with-go/
+// start: xml parsing - http://blog.davidsingleton.org/parsing-huge-xml-files-with-go
 type Redirect struct {
 	Title string `xml:"title,attr"`
 }
@@ -284,16 +285,18 @@ func main() {
 	//   bz2 url  : https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2
 
 	if len(os.Args) != 2 && len(os.Args) != 3 {
-		fmt.Fprintln(os.Stderr, "USAGE\tgo run wikistats.go <path> <limit>*")
-		fmt.Fprintln(os.Stderr, "   \t<path> wikimedia dump (file or url, xml or xml.bz)")
-		fmt.Fprintln(os.Stderr, "   \t<limit> limit number of pages to read (optional)")
-		fmt.Fprintln(os.Stderr, "EXAMPLE\tgo run wikistats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 10000")
+		fmt.Fprintln(os.Stderr, "wstats is a sketch of/place holder for a module to compute word statistics on wikipedia data. It is NOT ready for proper use, so use at your own risk.\n")
+		fmt.Fprintln(os.Stderr, "The program will print running progress and basic statistics to standard error.\nA complete word frequency list will be printed to standard out.\n")
+		fmt.Fprintln(os.Stderr, "USAGE:\n  $ go run wstats.go <path> <limit>*")
+		fmt.Fprintln(os.Stderr, "    <path> wikimedia dump (file or url, xml or xml.bz)")
+		fmt.Fprintln(os.Stderr, "    <limit> limit number of pages to read (optional)")
+		fmt.Fprintln(os.Stderr, "\nEXAMPLE USAGE:\n  $ go run wstats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 10000")
 		os.Exit(1)
 	}
 
 	output := bufio.NewWriter(os.Stdout)
 
-	log.Print("*** RUNNING wikistats.main() ***")
+	log.Print("*** RUNNING wstats.main() ***")
 
 	start := time.Now()
 	defer output.Flush()
