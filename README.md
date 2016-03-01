@@ -4,9 +4,9 @@
 
 Usage:
   
-     $	go run wikistats.go <path> <limit>*
-     <path> wikimedia dump (file or url, xml or xml.bz))
-     <limit> limit number of pages (optional)
+     $ go run wikistats.go <path> <limit>*
+       <path> wikimedia dump (file or url, xml or xml.bz)
+       <limit> limit number of pages (optional)
    	
 Example usage:
 
@@ -16,4 +16,4 @@ Example usage:
 
 
 <br/>
-Xml parsing courtesy of : http://blog.davidsingleton.org/parsing-huge-xml-files-with-go/
+Xml parsing inspired by : http://blog.davidsingleton.org/parsing-huge-xml-files-with-go
