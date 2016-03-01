@@ -22,7 +22,9 @@ func SplitWhiteSpace(s string) []string {
 	result := make([]string, 0)
 	for _, v0 := range splitted {
 		v := strings.TrimSpace(v0)
-		if len(v) > 0 {	result = append(result, v) }
+		if len(v) > 0 {
+			result = append(result, v)
+		}
 	}
 	return result
 }
@@ -43,9 +45,11 @@ type Freq struct {
 	Value int
 }
 type FreqList []Freq
+
 func (p FreqList) Len() int           { return len(p) }
 func (p FreqList) Less(i, j int) bool { return p[i].Value < p[j].Value }
 func (p FreqList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+
 // end: util
 
 // start: xml parsing
@@ -58,6 +62,7 @@ type Page struct {
 	Redir Redirect `xml:"redirect"`
 	Text  string   `xml:"revision>text"`
 }
+
 // end: xml parsing
 
 func convert(s string) string {
@@ -110,6 +115,7 @@ var lineReplacements = []Replacement{
 	Replacement{regexp.MustCompile("^ *:;?"), ""},
 }
 var skipRe = regexp.MustCompile("^ *(!|\\||<|\\{\\||&|<redirect[^>]+>).*")
+
 // end: pre-compiled regexps
 
 func tokenizeLine(l string) []string {
@@ -303,8 +309,11 @@ func main() {
 		}
 		pageLimit = p
 	}
-	if pageLimit > 0 { log.Print("Limit : ", pageLimit) 
-	} else { log.Print("Limit : ", "None") }
+	if pageLimit > 0 {
+		log.Print("Limit : ", pageLimit)
+	} else {
+		log.Print("Limit : ", "None")
+	}
 
 	logAt := 100
 	nPages, nRedirects, nLines, nLinesSkipped, nWords, wordFreqs := loadXml(output, path, pageLimit, logAt)
