@@ -157,7 +157,7 @@ func lIntPrettyPrint(i int) string {
 	for _, repl := range replacements {
 		result = repl.From.ReplaceAllString(result, repl.To)
 	}
-	return result
+	return fmt.Sprintf("%12s", result)
 }
 
 func printProgress(nPages int, nLines int, nWords int) {
@@ -240,7 +240,7 @@ func loadXml(output io.Writer, path string, pageLimit int, logAt int) (int, int,
 		}
 		if pageLimit > 0 && nPages >= pageLimit {
 			clearProgress()
-			log.Println(fmt.Sprintf("!! Break called at %d pages (limit set by user)", nPages))
+			log.Println(fmt.Sprintf("Break called at %d pages (limit set by user)", nPages))
 			break
 		}
 		switch se := t.(type) {
@@ -277,7 +277,7 @@ func loadXml(output io.Writer, path string, pageLimit int, logAt int) (int, int,
 
 func main() {
 
-	// Download data here: https://dumps.wikimedia.org
+	// Download data here: https://dumps.wikimedia.org/backup-index.html
 	// Valid input:
 	//   xml file : XXwiki-YYYYMMDD-pages-articles-multistream.xml
 	//   bz2 file : XXwiki-YYYYMMDD-pages-articles-multistream.xml.bz2
@@ -288,7 +288,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "wstats is a sketch of/place holder for a module to compute word statistics on wikipedia data. It is NOT ready for proper use, so use at your own risk.\n")
 		fmt.Fprintln(os.Stderr, "The program will print running progress and basic statistics to standard error.\nA complete word frequency list will be printed to standard out.\n")
 		fmt.Fprintln(os.Stderr, "USAGE:\n  $ go run wstats.go <path> <limit>*")
-		fmt.Fprintln(os.Stderr, "    <path> wikimedia dump (file or url, xml or xml.bz)")
+		fmt.Fprintln(os.Stderr, "    <path> wikimedia dump (file or url, xml or xml.bz2)")
 		fmt.Fprintln(os.Stderr, "    <limit> limit number of pages to read (optional)")
 		fmt.Fprintln(os.Stderr, "\nEXAMPLE USAGE:\n  $ go run wstats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 10000")
 		os.Exit(1)
