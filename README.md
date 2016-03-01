@@ -10,4 +10,4 @@ Usage:
    	
 Example usage:
 
-     $ go run wikistats.go text https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 10000
+     $ go run wikistats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 10000
