@@ -15,6 +15,7 @@ Example usage:
 The program will print running progress and basic statistics to standard error.<br/>
 A complete word frequency list will be printed to standard out.
 
+Wikimedia dumps can be linked from/downloaded here: https://dumps.wikimedia.org/backup-index.html
 
 <br/>
 Xml parsing inspired by : http://blog.davidsingleton.org/parsing-huge-xml-files-with-go
