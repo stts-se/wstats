@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/stts-se/wstats/util"
 	"os"
 	"strings"
 	"testing"
@@ -11,13 +10,13 @@ import (
 var fsExp = "Xpctd: '%v' got: '%v'"
 var fsDidntExp = "Didn't expect: '%v'"
 
-func testConvert(input0 string) string {
-	input := preFilterLine(util.XString{input0})
+func testConvert(input string) string {
+	input = preFilterLine(input)
 	var result string
 	if skip(input) {
 		result = ""
 	} else {
-		result = convert(input).Value
+		result = convert(input)
 	}
 	return result
 }
@@ -58,5 +57,5 @@ func TestAll(t *testing.T) {
 			t.Errorf(fsExp, expect, result)
 		}
 	}
-	fmt.Fprint(os.Stderr, "[wstats_test] ", len(tests), " tests passed\n")
+	fmt.Fprint(os.Stderr, "[wstats_test] ", len(tests), " tests run\n")
 }

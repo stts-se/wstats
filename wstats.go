@@ -5,16 +5,48 @@ import (
 	"compress/bzip2"
 	"encoding/xml"
 	"fmt"
-	"github.com/stts-se/wstats/util"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 )
+
+// start: util
+func SplitWhiteSpace(s string) []string {
+	splitted := strings.Split(s, " ")
+	result := make([]string, 0)
+	for _, v0 := range splitted {
+		v := strings.TrimSpace(v0)
+		if len(v) > 0 {	result = append(result, v) }
+	}
+	return result
+}
+
+func SortByWordCount(wordFrequencies map[string]int) FreqList {
+	pl := make(FreqList, len(wordFrequencies))
+	i := 0
+	for k, v := range wordFrequencies {
+		pl[i] = Freq{k, v}
+		i++
+	}
+	sort.Sort(sort.Reverse(pl))
+	return pl
+}
+
+type Freq struct {
+	Key   string
+	Value int
+}
+type FreqList []Freq
+func (p FreqList) Len() int           { return len(p) }
+func (p FreqList) Less(i, j int) bool { return p[i].Value < p[j].Value }
+func (p FreqList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+// end: util
 
 // start: xml parsing
 // http://blog.davidsingleton.org/parsing-huge-xml-files-with-go/
@@ -26,15 +58,14 @@ type Page struct {
 	Redir Redirect `xml:"redirect"`
 	Text  string   `xml:"revision>text"`
 }
-
 // end: xml parsing
 
-func convert(l util.XString) util.XString {
-	result := l.Value
+func convert(s string) string {
+	result := s
 	for _, repl := range tokenReplacements {
 		result = repl.From.ReplaceAllString(result, repl.To)
 	}
-	return util.XString{result}.Trim().ToLower()
+	return strings.ToLower(strings.TrimSpace(result))
 }
 
 // start: pre-compiled regexps
@@ -79,24 +110,24 @@ var lineReplacements = []Replacement{
 	Replacement{regexp.MustCompile("^ *:;?"), ""},
 }
 var skipRe = regexp.MustCompile("^ *(!|\\||<|\\{\\||&|<redirect[^>]+>).*")
-
 // end: pre-compiled regexps
 
-func tokenizeLine(l0 util.XString) util.XArray {
-	splittable := convert(l0)
-	return splittable.SplitWhiteSpace()
+func tokenizeLine(l string) []string {
+	l = convert(l)
+	return SplitWhiteSpace(l)
 }
 
-func preFilterLine(l util.XString) util.XString {
-	result := l.Value
+func preFilterLine(l string) string {
+	result := l
 	for _, repl := range lineReplacements {
 		result = repl.From.ReplaceAllString(result, repl.To)
 	}
-	return util.XString{result}
+	return result
 }
 
-func skip(l util.XString) bool {
-	return (!strings.HasPrefix(l.Trim().Value, "<page") && !strings.HasPrefix(l.Trim().Value, "<text") && (l.MatchesRe(skipRe) || l.Contains("[[Användar") || l.Contains("<comment>")))
+func skip(l string) bool {
+	l = strings.TrimSpace(l)
+	return (!strings.HasPrefix(l, "<page") && !strings.HasPrefix(l, "<text") && (skipRe.MatchString(l) || strings.Contains(l, "[[Användar") || strings.Contains(l, "<comment>")))
 }
 
 func lIntRoundToString(i int) string {
@@ -110,10 +141,16 @@ func lIntRoundToString(i int) string {
 }
 
 func lIntPrettyPrint(i int) string {
-	return fmt.Sprintf("%12s", util.XString{fmt.Sprintf("%d", i)}.
-		ReplaceAll("([0-9])([0-9]{3})([0-9]{3})([0-9]{3})$", "$1,$2,$3,$4").
-		ReplaceAll("([0-9])([0-9]{3})([0-9]{3})$", "$1,$2,$3").
-		ReplaceAll("([0-9])([0-9]{3})$", "$1,$2").Value)
+	result := fmt.Sprintf("%d", i)
+	replacements := []Replacement{
+		Replacement{regexp.MustCompile("([0-9])([0-9]{3})([0-9]{3})([0-9]{3})$"), "$1,$2,$3,$4"},
+		Replacement{regexp.MustCompile("([0-9])([0-9]{3})([0-9]{3})$"), "$1,$2,$3"},
+		Replacement{regexp.MustCompile("([0-9])([0-9]{3})$"), "$1,$2"},
+	}
+	for _, repl := range replacements {
+		result = repl.From.ReplaceAllString(result, repl.To)
+	}
+	return result
 }
 
 func printProgress(nPages int, nLines int, nWords int) {
@@ -130,19 +167,19 @@ func clearProgress() {
 	fmt.Fprint(os.Stderr, withPadding)
 }
 
-func tokenizeText(text string) (int, int, map[util.XString]int) {
+func tokenizeText(text string) (int, int, map[string]int) {
 	var nLines = 0
 	var nLinesSkipped = 0
-	wordFreqs := make(map[util.XString]int)
+	wordFreqs := make(map[string]int)
 	for _, l0 := range strings.Split(text, "\n") {
 		nLines++
-		line := preFilterLine(util.XString{l0})
+		line := preFilterLine(l0)
 		if skip(line) {
 			nLinesSkipped++
 		} else {
 			words := tokenizeLine(line)
-			if len(words.Value) > 0 {
-				for _, word := range words.Value {
+			if len(words) > 0 {
+				for _, word := range words {
 					wordFreqs[word]++
 				}
 			}
@@ -151,7 +188,7 @@ func tokenizeText(text string) (int, int, map[util.XString]int) {
 	return nLines, nLinesSkipped, wordFreqs
 }
 
-func loadXml(output io.Writer, path string, pageLimit int, logAt int) (int, int, int, int, int, map[util.XString]int) {
+func loadXml(output io.Writer, path string, pageLimit int, logAt int) (int, int, int, int, int, map[string]int) {
 	var decoder *xml.Decoder
 	if strings.HasPrefix(path, "http") {
 		response, err := http.Get(path)
@@ -187,7 +224,7 @@ func loadXml(output io.Writer, path string, pageLimit int, logAt int) (int, int,
 	nPages := 0
 	nRedirects := 0
 	nWords := 0
-	wordFreqs := make(map[util.XString]int)
+	wordFreqs := make(map[string]int)
 
 	for {
 		t, _ := decoder.Token()
@@ -196,7 +233,7 @@ func loadXml(output io.Writer, path string, pageLimit int, logAt int) (int, int,
 		}
 		if pageLimit > 0 && nPages >= pageLimit {
 			clearProgress()
-			log.Println(fmt.Sprintf("Break called at %d pages (for debugging)", nPages))
+			log.Println(fmt.Sprintf("!! Break called at %d pages (limit set by user)", nPages))
 			break
 		}
 		switch se := t.(type) {
@@ -243,7 +280,7 @@ func main() {
 	if len(os.Args) != 2 && len(os.Args) != 3 {
 		fmt.Fprintln(os.Stderr, "USAGE\tgo run wikistats.go <path> <limit>*")
 		fmt.Fprintln(os.Stderr, "   \t<path> wikimedia dump (file or url, xml or xml.bz)")
-		fmt.Fprintln(os.Stderr, "   \t<limit> limit number of pages (optional)")
+		fmt.Fprintln(os.Stderr, "   \t<limit> limit number of pages to read (optional)")
 		fmt.Fprintln(os.Stderr, "EXAMPLE\tgo run wikistats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 10000")
 		os.Exit(1)
 	}
@@ -256,6 +293,8 @@ func main() {
 	defer output.Flush()
 
 	path := os.Args[1]
+	log.Print("Path  : ", path)
+
 	pageLimit := -1
 	if len(os.Args) == 3 {
 		p, err := strconv.Atoi(os.Args[2])
@@ -264,15 +303,15 @@ func main() {
 		}
 		pageLimit = p
 	}
-
-	log.Print("Path : ", path)
+	if pageLimit > 0 { log.Print("Limit : ", pageLimit) 
+	} else { log.Print("Limit : ", "None") }
 
 	logAt := 100
 	nPages, nRedirects, nLines, nLinesSkipped, nWords, wordFreqs := loadXml(output, path, pageLimit, logAt)
 
 	loaded := time.Now()
 
-	for _, pair := range util.SortByWordCount(wordFreqs) {
+	for _, pair := range SortByWordCount(wordFreqs) {
 		if pair.Value > 1 {
 			fmt.Fprintf(output, "%d\t%s\n", pair.Value, pair.Key)
 		}
@@ -287,15 +326,15 @@ func main() {
 	printDur := end.Sub(loaded) - end.Sub(loaded)%time.Millisecond
 	totalDur := end.Sub(start) - end.Sub(start)%time.Millisecond
 
-	log.Print("Inläsning tog   : ", fmt.Sprintf("%12v\n", loadDur))
-	log.Print("Utskrift tog    : ", fmt.Sprintf("%12v\n", printDur))
-	log.Print("Total tid       : ", fmt.Sprintf("%12v\n", totalDur))
+	log.Print("Load took             : ", fmt.Sprintf("%12v\n", loadDur))
+	log.Print("Print took            : ", fmt.Sprintf("%12v\n", printDur))
+	log.Print("Total dur             : ", fmt.Sprintf("%12v\n", totalDur))
 
-	log.Print("Antal sidor     : ", lIntPrettyPrint(nPages))
-	log.Print("Varav redirects : ", lIntPrettyPrint(nRedirects))
-	log.Print("Antal rader     : ", lIntPrettyPrint(nLines))
-	log.Print("Skippade rader  : ", lIntPrettyPrint(nLinesSkipped))
-	log.Print("Antal löpord    : ", lIntPrettyPrint(nWords))
-	log.Print("Antal unika ord : ", lIntPrettyPrint(len(wordFreqs)))
+	log.Print("No. of pages          : ", lIntPrettyPrint(nPages))
+	log.Print("No. of redirects      : ", lIntPrettyPrint(nRedirects))
+	log.Print("No. of lines          : ", lIntPrettyPrint(nLines))
+	log.Print("No. of skipped lines  : ", lIntPrettyPrint(nLinesSkipped))
+	log.Print("No. of words          : ", lIntPrettyPrint(nWords))
+	log.Print("No. of unique words   : ", lIntPrettyPrint(len(wordFreqs)))
 
 }
