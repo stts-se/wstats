@@ -16,4 +16,4 @@ Example usage:
 
 
 <br/>
-Xml parsing courtesy of : http://blog.davidsingleton.org/parsing-huge-xml-files-with-go/
+Xml parsing inspired by : http://blog.davidsingleton.org/parsing-huge-xml-files-with-go/
