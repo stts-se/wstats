@@ -4,13 +4,13 @@
 
 Usage:
   
-     $ go run wikistats.go <path> <limit>*
+     $ go run wstats.go <path> <limit>*
        <path> wikimedia dump (file or url, xml or xml.bz)
        <limit> limit number of pages to read (optional)
    	
 Example usage:
 
-     $ go run wikistats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 10000
+     $ go run wstats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 10000
 
 The program will print running progress and basic statistics to standard error. A complete word frequency list will be printed to standard out.
 
