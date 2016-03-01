@@ -6,7 +6,7 @@ Usage:
   
      $ go run wikistats.go <path> <limit>*
        <path> wikimedia dump (file or url, xml or xml.bz)
-       <limit> limit number of pages (optional)
+       <limit> limit number of pages to read (optional)
    	
 Example usage:
 
