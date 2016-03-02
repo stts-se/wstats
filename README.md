@@ -1,6 +1,6 @@
 # wstats
 
-`wstats` is a sketch of/place holder for a module to compute word statistics on wikipedia data. It is NOT ready for proper use, so use at your own risk.
+`wstats` is a module for computing word statistics on wikipedia data. It is NOT ready for proper use, so use at your own risk
 
 Usage:
   
