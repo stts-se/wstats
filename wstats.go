@@ -283,7 +283,7 @@ The program will print running progress and basic statistics to standard error.\
 Cmd line arguments:
   path to the wikimedia dump file (file or url, xml or xml.bz2) (required)
   -pl=int   page limit: limit number of pages to read (optional, default = unset)
-  -fl=int   freq limit: lower limit for word frequencies to be printed (optional, default = 2)
+  -mf=int   min freq: lower limit for word frequencies to be printed (optional, default = 2)
   -h        help: print help message
 
 Example usage:
@@ -291,7 +291,7 @@ Example usage:
 `
 
 	var pageLimit = -1
-	var freqLimit = 2
+	var minFreq = 2
 	var file = ""
 
 	if len(os.Args) == 1 {
@@ -330,14 +330,14 @@ Example usage:
 						os.Exit(2)
 					}
 					pageLimit = p
-				} else if name == "fl" {
+				} else if name == "mf" {
 					p, err := strconv.Atoi(value)
 					if err != nil {
 						fmt.Fprintln(os.Stderr, "Invalid integer value for flag:", name, "=", value, "\n")
 						fmt.Fprintln(os.Stderr, usage)
 						os.Exit(2)
 					}
-					freqLimit = p
+					minFreq = p
 				} else {
 					fmt.Fprintln(os.Stderr, "Unknown cmd line flag:", arg, "\n")
 					fmt.Fprintln(os.Stderr, usage)
@@ -353,7 +353,7 @@ Example usage:
 		os.Exit(2)
 	}
 
-	return pageLimit, freqLimit, file
+	return pageLimit, minFreq, file
 }
 
 func main() {
@@ -365,7 +365,7 @@ func main() {
 	//   xml url  : implemented by not likely to be used...
 	//   bz2 url  : https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2
 
-	pageLimit, freqLimit, path := loadCmdLineArgs()
+	pageLimit, minFreq, path := loadCmdLineArgs()
 
 	log.Print("*** RUNNING wstats.main() ***")
 	log.Print("Path : ", path)
@@ -374,7 +374,7 @@ func main() {
 	} else {
 		log.Print("Page limit : ", "None")
 	}
-	log.Print("Freq limit : ", freqLimit)
+	log.Print("Min freq   : ", minFreq)
 
 	output := bufio.NewWriter(os.Stdout)
 
@@ -387,7 +387,7 @@ func main() {
 	loaded := time.Now()
 
 	for _, pair := range SortByWordCount(wordFreqs) {
-		if pair.Value > 1 {
+		if pair.Value >= minFreq {
 			fmt.Fprintf(output, "%d\t%s\n", pair.Value, pair.Key)
 		}
 	}

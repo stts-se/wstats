@@ -9,7 +9,7 @@ Cmd line arguments:
 
      path to the wikimedia dump file (file or url, xml or xml.bz2) (required)
      -pl=int    page limit: limit number of pages to read (optional, default = unset)
-     -fl=int    freq limit: lower limit for word frequencies to be printed (optional, default = 2)
+     -mf=int    min freq: lower limit for word frequencies to be printed (optional, default = 2)
      -h         help: print help message
 
 Example usage:
