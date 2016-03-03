@@ -5,7 +5,6 @@ import (
 	"compress/bzip2"
 	"encoding/xml"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -29,7 +28,7 @@ func SplitWhiteSpace(s string) []string {
 	return result
 }
 
-// start: sorting 
+// start: sorting
 func SortByWordCount(wordFrequencies map[string]int) FreqList {
 	pl := make(FreqList, len(wordFrequencies))
 	i := 0
@@ -50,6 +49,7 @@ type FreqList []Freq
 func (p FreqList) Len() int           { return len(p) }
 func (p FreqList) Less(i, j int) bool { return p[i].Value < p[j].Value }
 func (p FreqList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+
 // end: sorting
 
 // end: util
@@ -195,7 +195,7 @@ func tokenizeText(text string) (int, int, map[string]int) {
 	return nLines, nLinesSkipped, wordFreqs
 }
 
-func loadXml(output io.Writer, path string, pageLimit int, logAt int) (int, int, int, int, int, map[string]int) {
+func loadXml(path string, pageLimit int, logAt int) (int, int, int, int, int, map[string]int) {
 	var decoder *xml.Decoder
 	if strings.HasPrefix(path, "http") {
 		response, err := http.Get(path)
@@ -275,6 +275,68 @@ func loadXml(output io.Writer, path string, pageLimit int, logAt int) (int, int,
 	return nPages, nRedirects, nLines, nLinesSkipped, nWords, wordFreqs
 }
 
+func loadCmdLineArgs() (int, int, string) {
+	var usage = `wstats is a sketch of/place holder for a module to compute word statistics on wikipedia data. It is NOT ready for proper use, so use at your own risk.
+
+The program will print running progress and basic statistics to standard error.\nA complete word frequency list will be printed to standard out.
+
+Cmd line arguments:
+   path to the wikimedia dump file (file or url, xml or xml.bz2) (required)
+   -pl=int   page limit: limit number of pages to read (optional, default = unset)
+   -fl=int   freq limit: lower limit for word frequencies to be printed (optional, default = 2)
+   -help  help: print help message
+
+Example usage:\n  $ go run wstats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 -pl=10000`
+
+	var pageLimit = -1
+	var freqLimit = 2
+	var file = ""
+
+	for i, arg := range os.Args {
+		if i > 0 {
+			if arg == "-help" || arg == "-h" {
+				fmt.Fprintln(os.Stderr, usage)
+				os.Exit(2)
+			} else if !strings.HasPrefix(arg, "-") {
+				file = arg
+			} else {
+				parsed := strings.Split(arg, "=")
+				name := strings.Replace(parsed[0], "-", "", -1)
+				value := ""
+				if len(parsed) == 2 {
+					value = parsed[1]
+				} else {
+					fmt.Fprintln(os.Stderr, "Cmd line flag", arg, " needs value after =\n")
+					fmt.Fprintln(os.Stderr, usage)
+				}
+				if name == "pl" {
+					p, err := strconv.Atoi(value)
+					if err != nil {
+						fmt.Fprintln(os.Stderr, "Invalid integer value for flag:", name, "=", value, "\n")
+						fmt.Fprintln(os.Stderr, usage)
+						os.Exit(1)
+					}
+					pageLimit = p
+				} else if name == "fl" {
+					p, err := strconv.Atoi(value)
+					if err != nil {
+						fmt.Fprintln(os.Stderr, "Invalid integer value for flag:", name, "=", value, "\n")
+						fmt.Fprintln(os.Stderr, usage)
+						os.Exit(1)
+					}
+					freqLimit = p
+				} else {
+					fmt.Fprintln(os.Stderr, "Unknown cmd line flag:", arg, "\n")
+					fmt.Fprintln(os.Stderr, usage)
+					os.Exit(1)
+				}
+			}
+		}
+	}
+
+	return pageLimit, freqLimit, file
+}
+
 func main() {
 
 	// Download data here: https://dumps.wikimedia.org/backup-index.html
@@ -284,42 +346,24 @@ func main() {
 	//   xml url  : implemented by not likely to be used...
 	//   bz2 url  : https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2
 
-	if len(os.Args) != 2 && len(os.Args) != 3 {
-		fmt.Fprintln(os.Stderr, "wstats is a sketch of/place holder for a module to compute word statistics on wikipedia data. It is NOT ready for proper use, so use at your own risk.\n")
-		fmt.Fprintln(os.Stderr, "The program will print running progress and basic statistics to standard error.\nA complete word frequency list will be printed to standard out.\n")
-		fmt.Fprintln(os.Stderr, "USAGE:\n  $ go run wstats.go <path> <limit>*")
-		fmt.Fprintln(os.Stderr, "    <path> wikimedia dump (file or url, xml or xml.bz2)")
-		fmt.Fprintln(os.Stderr, "    <limit> limit number of pages to read (optional)")
-		fmt.Fprintln(os.Stderr, "\nEXAMPLE USAGE:\n  $ go run wstats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 10000")
-		os.Exit(1)
-	}
-
-	output := bufio.NewWriter(os.Stdout)
+	pageLimit, freqLimit, path := loadCmdLineArgs()
 
 	log.Print("*** RUNNING wstats.main() ***")
+	log.Print("Path : ", path)
+	if pageLimit > 0 {
+		log.Print("Page limit : ", pageLimit)
+	} else {
+		log.Print("Page limit : ", "None")
+	}
+	log.Print("Freq limit : ", freqLimit)
+
+	output := bufio.NewWriter(os.Stdout)
 
 	start := time.Now()
 	defer output.Flush()
 
-	path := os.Args[1]
-	log.Print("Path  : ", path)
-
-	pageLimit := -1
-	if len(os.Args) == 3 {
-		p, err := strconv.Atoi(os.Args[2])
-		if err != nil {
-			log.Fatal(err)
-		}
-		pageLimit = p
-	}
-	if pageLimit > 0 {
-		log.Print("Limit : ", pageLimit)
-	} else {
-		log.Print("Limit : ", "None")
-	}
-
 	logAt := 100
-	nPages, nRedirects, nLines, nLinesSkipped, nWords, wordFreqs := loadXml(output, path, pageLimit, logAt)
+	nPages, nRedirects, nLines, nLinesSkipped, nWords, wordFreqs := loadXml(path, pageLimit, logAt)
 
 	loaded := time.Now()
 
@@ -329,7 +373,7 @@ func main() {
 		}
 	}
 
-	output.Flush()
+	output.Flush() // not needed in comb with defer.output.Flush() ?
 	end := time.Now()
 
 	clearProgress()
