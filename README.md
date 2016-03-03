@@ -2,15 +2,18 @@
 
 `wstats` is a module for computing word statistics on wikipedia data. It is NOT ready for proper use, so use at your own risk
 
-Usage:
-  
-     $ go run wstats.go <path> <limit>*
-       <path> wikimedia dump (file or url, xml or xml.bz2)
-       <limit> limit number of pages to read (optional)
-   	
+The program will print running progress and basic statistics to standard error.\nA complete word frequency list will be printed to standard out.
+
+Cmd line arguments:<br/>
+     &nbsp;&nbsp;&nbsp;&nbsp;path to the wikimedia dump file (file or url, xml or xml.bz2) (required)<br/>
+     &nbsp;&nbsp;&nbsp;&nbsp;-pl=int   page limit: limit number of pages to read (optional, default = unset)<br/>
+     &nbsp;&nbsp;&nbsp;&nbsp;-fl=int   freq limit: lower limit for word frequencies to be printed (optional, default = 2)<br/>
+     &nbsp;&nbsp;&nbsp;&nbsp;-help  help: print help message
+
 Example usage:
 
-     $ go run wstats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 10000
+    $ go run wstats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 -pl=10000
+
 
 The program will print running progress and basic statistics to standard error.<br/>
 A complete word frequency list will be printed to standard out.
