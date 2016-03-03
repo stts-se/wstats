@@ -294,6 +294,11 @@ Example usage:
 	var freqLimit = 2
 	var file = ""
 
+	if len(os.Args) == 1 {
+		fmt.Fprintln(os.Stderr, usage)
+		os.Exit(2)
+	}
+
 	for i, arg := range os.Args {
 		if i > 0 {
 			if arg == "-help" || arg == "-h" {
