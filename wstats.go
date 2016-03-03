@@ -281,12 +281,13 @@ func loadCmdLineArgs() (int, int, string) {
 The program will print running progress and basic statistics to standard error.\nA complete word frequency list will be printed to standard out.
 
 Cmd line arguments:
-   path to the wikimedia dump file (file or url, xml or xml.bz2) (required)
-   -pl=int   page limit: limit number of pages to read (optional, default = unset)
-   -fl=int   freq limit: lower limit for word frequencies to be printed (optional, default = 2)
-   -help  help: print help message
+  path to the wikimedia dump file (file or url, xml or xml.bz2) (required)
+  -pl=int   page limit: limit number of pages to read (optional, default = unset)
+  -fl=int   freq limit: lower limit for word frequencies to be printed (optional, default = 2)
+  -help  help: print help message
 
-Example usage:\n  $ go run wstats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 -pl=10000`
+Example usage:
+  $ go run wstats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 -pl=10000`
 
 	var pageLimit = -1
 	var freqLimit = 2
@@ -298,7 +299,13 @@ Example usage:\n  $ go run wstats.go https://dumps.wikimedia.org/svwiki/latest/s
 				fmt.Fprintln(os.Stderr, usage)
 				os.Exit(2)
 			} else if !strings.HasPrefix(arg, "-") {
-				file = arg
+				if file == "" {
+					file = arg
+				} else {
+					fmt.Fprintln(os.Stderr, "Multiple files potentially defined in cmd line args:", file, "AND", arg, "\n")
+					fmt.Fprintln(os.Stderr, usage)
+					os.Exit(1)
+				}
 			} else {
 				parsed := strings.Split(arg, "=")
 				name := strings.Replace(parsed[0], "-", "", -1)
