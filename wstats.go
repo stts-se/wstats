@@ -284,10 +284,11 @@ Cmd line arguments:
   path to the wikimedia dump file (file or url, xml or xml.bz2) (required)
   -pl=int   page limit: limit number of pages to read (optional, default = unset)
   -fl=int   freq limit: lower limit for word frequencies to be printed (optional, default = 2)
-  -help  help: print help message
+  -h        help: print help message
 
 Example usage:
-  $ go run wstats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 -pl=10000`
+  $ go run wstats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 -pl=10000
+`
 
 	var pageLimit = -1
 	var freqLimit = 2
@@ -304,7 +305,7 @@ Example usage:
 				} else {
 					fmt.Fprintln(os.Stderr, "Multiple files potentially defined in cmd line args:", file, "AND", arg, "\n")
 					fmt.Fprintln(os.Stderr, usage)
-					os.Exit(1)
+					os.Exit(2)
 				}
 			} else {
 				parsed := strings.Split(arg, "=")
@@ -321,7 +322,7 @@ Example usage:
 					if err != nil {
 						fmt.Fprintln(os.Stderr, "Invalid integer value for flag:", name, "=", value, "\n")
 						fmt.Fprintln(os.Stderr, usage)
-						os.Exit(1)
+						os.Exit(2)
 					}
 					pageLimit = p
 				} else if name == "fl" {
@@ -329,16 +330,22 @@ Example usage:
 					if err != nil {
 						fmt.Fprintln(os.Stderr, "Invalid integer value for flag:", name, "=", value, "\n")
 						fmt.Fprintln(os.Stderr, usage)
-						os.Exit(1)
+						os.Exit(2)
 					}
 					freqLimit = p
 				} else {
 					fmt.Fprintln(os.Stderr, "Unknown cmd line flag:", arg, "\n")
 					fmt.Fprintln(os.Stderr, usage)
-					os.Exit(1)
+					os.Exit(2)
 				}
 			}
 		}
+	}
+
+	if file == "" {
+		fmt.Fprintln(os.Stderr, "Input file not set!\n")
+		fmt.Fprintln(os.Stderr, usage)
+		os.Exit(2)
 	}
 
 	return pageLimit, freqLimit, file
