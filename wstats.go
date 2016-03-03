@@ -4,13 +4,13 @@ import (
 	"bufio"
 	"compress/bzip2"
 	"encoding/xml"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -138,11 +138,12 @@ func skip(l string) bool {
 }
 
 func lIntRoundToString(i int) string {
-	if i > 100000 {
+	switch {
+	case i > 100000:
 		return fmt.Sprintf("%7.2fM", (float64(i) / float64(1000000)))
-	} else if i > 1000 {
+	case i > 1000:
 		return fmt.Sprintf("%7.2fK", (float64(i) / float64(1000)))
-	} else {
+	default:
 		return fmt.Sprintf("%7d.00", i)
 	}
 }
@@ -282,78 +283,31 @@ The program will print running progress and basic statistics to standard error.\
 
 Cmd line arguments:
   path to the wikimedia dump file (file or url, xml or xml.bz2) (required)
-  -pl=int   page limit: limit number of pages to read (optional, default = unset)
-  -mf=int   min freq: lower limit for word frequencies to be printed (optional, default = 2)
+  -pl int   page limit: limit number of pages to read (optional, default = unset)
+  -mf int   min freq: lower limit for word frequencies to be printed (optional, default = 2)
   -h        help: print help message
 
 Example usage:
   $ go run wstats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 -pl=10000
+
 `
+	//var f = flag.NewFlagSet("wstats", flag.ExitOnError)
+	//var f = flag.NewFlagSet("wstats", flag.ContinueOnError)
 
-	var pageLimit = -1
-	var minFreq = 2
-	var file = ""
+	var pageLimit = flag.Int("pl", -1, "page limit")
+	var minFreq = flag.Int("mf", 2, "min freq")
+	var help = flag.Bool("help", false, "print help message")
 
-	if len(os.Args) == 1 {
-		fmt.Fprintln(os.Stderr, usage)
+	flag.Parse()
+
+	fmt.Fprintln(os.Stderr, "wstats.debug: args=", flag.Args())
+
+	if *help || len(flag.Args()) != 1 {
+		fmt.Fprint(os.Stderr, usage)
 		os.Exit(2)
 	}
-
-	for i, arg := range os.Args {
-		if i > 0 {
-			if arg == "-help" || arg == "-h" {
-				fmt.Fprintln(os.Stderr, usage)
-				os.Exit(2)
-			} else if !strings.HasPrefix(arg, "-") {
-				if file == "" {
-					file = arg
-				} else {
-					fmt.Fprintln(os.Stderr, "Multiple files potentially defined in cmd line args:", file, "AND", arg, "\n")
-					fmt.Fprintln(os.Stderr, usage)
-					os.Exit(2)
-				}
-			} else {
-				parsed := strings.Split(arg, "=")
-				name := strings.Replace(parsed[0], "-", "", -1)
-				value := ""
-				if len(parsed) == 2 {
-					value = parsed[1]
-				} else {
-					fmt.Fprintln(os.Stderr, "Cmd line flag", arg, " needs value after =\n")
-					fmt.Fprintln(os.Stderr, usage)
-				}
-				if name == "pl" {
-					p, err := strconv.Atoi(value)
-					if err != nil {
-						fmt.Fprintln(os.Stderr, "Invalid integer value for flag:", name, "=", value, "\n")
-						fmt.Fprintln(os.Stderr, usage)
-						os.Exit(2)
-					}
-					pageLimit = p
-				} else if name == "mf" {
-					p, err := strconv.Atoi(value)
-					if err != nil {
-						fmt.Fprintln(os.Stderr, "Invalid integer value for flag:", name, "=", value, "\n")
-						fmt.Fprintln(os.Stderr, usage)
-						os.Exit(2)
-					}
-					minFreq = p
-				} else {
-					fmt.Fprintln(os.Stderr, "Unknown cmd line flag:", arg, "\n")
-					fmt.Fprintln(os.Stderr, usage)
-					os.Exit(2)
-				}
-			}
-		}
-	}
-
-	if file == "" {
-		fmt.Fprintln(os.Stderr, "Input file not set!\n")
-		fmt.Fprintln(os.Stderr, usage)
-		os.Exit(2)
-	}
-
-	return pageLimit, minFreq, file
+	var file = flag.Args()[0]
+	return *pageLimit, *minFreq, file
 }
 
 func main() {
