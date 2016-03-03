@@ -278,7 +278,7 @@ func loadXml(path string, pageLimit int, logAt int) (int, int, int, int, int, ma
 func loadCmdLineArgs() (int, int, string) {
 	var usage = `wstats is a sketch of/place holder for a module to compute word statistics on wikipedia data. It is NOT ready for proper use, so use at your own risk.
 
-The program will print running progress and basic statistics to standard error.\nA complete word frequency list will be printed to standard out.
+The program will print running progress and basic statistics to standard error.\nA complete word frequency list will be printed to standard out (limited by min freq, if set).
 
 Cmd line arguments:
   path to the wikimedia dump file (file or url, xml or xml.bz2) (required)

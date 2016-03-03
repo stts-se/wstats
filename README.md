@@ -18,7 +18,7 @@ Example usage:
 
 
 The program will print running progress and basic statistics to standard error.<br/>
-A complete word frequency list will be printed to standard out.
+A complete word frequency list will be printed to standard out (limited by min freq, if set).
 
 Wikipedia dumps: https://dumps.wikimedia.org/backup-index.html
 
