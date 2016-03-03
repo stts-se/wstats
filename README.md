@@ -4,11 +4,13 @@
 
 The program will print running progress and basic statistics to standard error.\nA complete word frequency list will be printed to standard out.
 
-Cmd line arguments:<br/>
-     &nbsp;&nbsp;&nbsp;&nbsp;path to the wikimedia dump file (file or url, xml or xml.bz2) (required)<br/>
-     &nbsp;&nbsp;&nbsp;&nbsp;-pl=int   page limit: limit number of pages to read (optional, default = unset)<br/>
-     &nbsp;&nbsp;&nbsp;&nbsp;-fl=int   freq limit: lower limit for word frequencies to be printed (optional, default = 2)<br/>
-     &nbsp;&nbsp;&nbsp;&nbsp;-help  help: print help message
+
+Cmd line arguments:
+
+     path to the wikimedia dump file (file or url, xml or xml.bz2) (required)
+     -pl=int    page limit: limit number of pages to read (optional, default = unset)
+     -fl=int    freq limit: lower limit for word frequencies to be printed (optional, default = 2)
+     -h         help: print help message
 
 Example usage:
 
