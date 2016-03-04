@@ -306,13 +306,12 @@ Example usage:
 `
 
 	var f = flag.NewFlagSet("wstats", flag.ExitOnError)
-
 	var pageLimit = f.Int("pl", -1, "page limit")
 	var minFreq = f.Int("mf", 2, "min freq")
 
 	var args = os.Args
 	if strings.HasSuffix(args[0], "wstats") {
-		args = args[1:len(args)] // remove first argument if it's the program name
+		args = args[1:] // remove first argument if it's the program name
 	}
 	f.Usage = func() {
 		fmt.Fprintf(os.Stderr, usage)
