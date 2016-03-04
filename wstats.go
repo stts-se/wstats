@@ -296,7 +296,7 @@ Example usage:
 `
 	var pageLimit = flag.Int("pl", -1, "page limit")
 	var minFreq = flag.Int("mf", 2, "min freq")
-	var help = flag.Bool("help", false, "print help message")
+	var help = flag.Bool("h", false, "print help message")
 
 	flag.Parse()
 
