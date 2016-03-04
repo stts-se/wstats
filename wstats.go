@@ -287,7 +287,8 @@ func loadXml(path string, pageLimit int, logAt int) LoadResult {
 }
 
 func loadCmdLineArgs() (int, int, string) {
-	var usage = `wstats is a sketch of/place holder for a module to compute word statistics on wikipedia data. It is NOT ready for proper use, so use at your own risk.
+	var usage = `
+wstats is a sketch of/place holder for a module to compute word statistics on wikipedia data. It is NOT ready for proper use, so use at your own risk.
 
 The program will print running progress and basic statistics to standard error.\nA complete word frequency list will be printed to standard out (limited by min freq, if set).
 
@@ -297,24 +298,38 @@ Usage:
 Cmd line flags:
   -pl int     page limit: limit number of pages to read (optional, default = unset)
   -mf int     min freq: lower limit for word frequencies to be printed (optional, default = 2)
-  -h          help: print help message
+  -h(elp)     help: print help message
 
 Example usage:
   $ go run wstats.go -pl 10000 https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 
 
 `
-	var pageLimit = flag.Int("pl", -1, "page limit")
-	var minFreq = flag.Int("mf", 2, "min freq")
-	var h = flag.Bool("h", false, "print help message")
-	var help = flag.Bool("help", false, "print help message")
 
-	flag.Parse()
+	var f = flag.NewFlagSet("wstats", flag.ExitOnError)
 
-	if *help || *h || len(flag.Args()) != 1 {
+	var pageLimit = f.Int("pl", -1, "page limit")
+	var minFreq = f.Int("mf", 2, "min freq")
+
+	var args = os.Args
+	if strings.HasSuffix(args[0], "wstats") {
+		args = args[1:len(args)] // remove first argument if it's the program name
+	}
+	f.Usage = func() {
+		fmt.Fprintf(os.Stderr, usage)
+	}
+
+	var err = f.Parse(args)
+
+	if err != nil {
+		fmt.Fprint(os.Stderr, err)
+		fmt.Fprint(os.Stderr, "")
+	}
+
+	if err != nil || len(f.Args()) != 1 {
 		fmt.Fprint(os.Stderr, usage)
 		os.Exit(2)
 	}
-	var file = flag.Args()[0]
+	var file = f.Args()[0]
 	return *pageLimit, *minFreq, file
 }
 
@@ -354,7 +369,7 @@ func main() {
 		}
 	}
 
-	output.Flush() // not needed in comb with defer.output.Flush() ?
+	output.Flush() // not needed in comb. with defer.output.Flush() ?
 	end := time.Now()
 
 	clearProgress()
