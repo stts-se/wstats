@@ -175,10 +175,10 @@ func clearProgress() {
 	fmt.Fprint(os.Stderr, withPadding)
 }
 
-func tokenizeText(text string) (int, int, map[string]int) {
-	var nLines = 0
-	var nLinesSkipped = 0
-	wordFreqs := make(map[string]int)
+func tokenizeText(text string) (nLines int, nLinesSkipped int, wordFreqs map[string]int) {
+	nLines = 0
+	nLinesSkipped = 0
+	wordFreqs = make(map[string]int)
 	for _, l0 := range strings.Split(text, "\n") {
 		nLines++
 		line := preFilterLine(l0)
@@ -196,7 +196,16 @@ func tokenizeText(text string) (int, int, map[string]int) {
 	return nLines, nLinesSkipped, wordFreqs
 }
 
-func loadXml(path string, pageLimit int, logAt int) (int, int, int, int, int, map[string]int) {
+type LoadResult struct {
+	NPages        int
+	NRedirects    int
+	NLines        int
+	NLinesSkipped int
+	NWords        int
+	WordFreqs     map[string]int
+}
+
+func loadXml(path string, pageLimit int, logAt int) LoadResult {
 	var decoder *xml.Decoder
 	if strings.HasPrefix(path, "http") {
 		response, err := http.Get(path)
@@ -227,28 +236,29 @@ func loadXml(path string, pageLimit int, logAt int) (int, int, int, int, int, ma
 		}
 	}
 
-	nLines := 0
-	nLinesSkipped := 0
-	nPages := 0
-	nRedirects := 0
-	nWords := 0
-	wordFreqs := make(map[string]int)
+	var result = LoadResult{}
+	result.NLines = 0
+	result.NLinesSkipped = 0
+	result.NPages = 0
+	result.NRedirects = 0
+	result.NWords = 0
+	result.WordFreqs = make(map[string]int)
 
 	for {
 		t, _ := decoder.Token()
 		if t == nil {
 			break
 		}
-		if pageLimit > 0 && nPages >= pageLimit {
+		if pageLimit > 0 && result.NPages >= pageLimit {
 			clearProgress()
-			log.Println(fmt.Sprintf("Break called at %d pages (limit set by user)", nPages))
+			log.Println(fmt.Sprintf("Break called at %d pages (limit set by user)", result.NPages))
 			break
 		}
 		switch se := t.(type) {
 		case xml.StartElement:
 			if se.Name.Local == "page" {
 				var p Page
-				nPages++
+				result.NPages++
 				decoder.DecodeElement(&p, &se)
 				var text = p.Text
 				var title = p.Title
@@ -257,23 +267,23 @@ func loadXml(path string, pageLimit int, logAt int) (int, int, int, int, int, ma
 				}
 				var redirect = p.Redir.Title
 				if len(redirect) > 0 {
-					nRedirects++
+					result.NRedirects++
 				} else {
 					nL, nLS, wFs := tokenizeText(text)
-					nLines += nL
-					nLinesSkipped += nLS
+					result.NLines += nL
+					result.NLinesSkipped += nLS
 					for w, f := range wFs {
-						nWords += f
-						wordFreqs[w] += f
+						result.NWords += f
+						result.WordFreqs[w] += f
 					}
 				}
-				if nPages%logAt == 0 {
-					printProgress(nPages, nLines, nWords)
+				if result.NPages%logAt == 0 {
+					printProgress(result.NPages, result.NLines, result.NWords)
 				}
 			}
 		}
 	}
-	return nPages, nRedirects, nLines, nLinesSkipped, nWords, wordFreqs
+	return result
 }
 
 func loadCmdLineArgs() (int, int, string) {
@@ -292,15 +302,15 @@ Cmd line flags:
 Example usage:
   $ go run wstats.go -pl 10000 https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 
 
-
 `
 	var pageLimit = flag.Int("pl", -1, "page limit")
 	var minFreq = flag.Int("mf", 2, "min freq")
-	var help = flag.Bool("h", false, "print help message")
+	var h = flag.Bool("h", false, "print help message")
+	var help = flag.Bool("help", false, "print help message")
 
 	flag.Parse()
 
-	if *help || len(flag.Args()) != 1 {
+	if *help || *h || len(flag.Args()) != 1 {
 		fmt.Fprint(os.Stderr, usage)
 		os.Exit(2)
 	}
@@ -334,11 +344,11 @@ func main() {
 	defer output.Flush()
 
 	logAt := 100
-	nPages, nRedirects, nLines, nLinesSkipped, nWords, wordFreqs := loadXml(path, pageLimit, logAt)
+	result := loadXml(path, pageLimit, logAt)
 
 	loaded := time.Now()
 
-	for _, pair := range SortByWordCount(wordFreqs) {
+	for _, pair := range SortByWordCount(result.WordFreqs) {
 		if pair.Value >= minFreq {
 			fmt.Fprintf(output, "%d\t%s\n", pair.Value, pair.Key)
 		}
@@ -357,11 +367,11 @@ func main() {
 	log.Print("Print took           : ", fmt.Sprintf("%12v\n", printDur))
 	log.Print("Total dur            : ", fmt.Sprintf("%12v\n", totalDur))
 
-	log.Print("No. of pages         : ", lIntPrettyPrint(nPages))
-	log.Print("No. of redirects     : ", lIntPrettyPrint(nRedirects))
-	log.Print("No. of lines         : ", lIntPrettyPrint(nLines))
-	log.Print("No. of skipped lines : ", lIntPrettyPrint(nLinesSkipped))
-	log.Print("No. of words         : ", lIntPrettyPrint(nWords))
-	log.Print("No. of unique words  : ", lIntPrettyPrint(len(wordFreqs)))
+	log.Print("No. of pages         : ", lIntPrettyPrint(result.NPages))
+	log.Print("No. of redirects     : ", lIntPrettyPrint(result.NRedirects))
+	log.Print("No. of lines         : ", lIntPrettyPrint(result.NLines))
+	log.Print("No. of skipped lines : ", lIntPrettyPrint(result.NLinesSkipped))
+	log.Print("No. of words         : ", lIntPrettyPrint(result.NWords))
+	log.Print("No. of unique words  : ", lIntPrettyPrint(len(result.WordFreqs)))
 
 }
