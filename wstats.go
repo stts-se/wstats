@@ -281,26 +281,24 @@ func loadCmdLineArgs() (int, int, string) {
 
 The program will print running progress and basic statistics to standard error.\nA complete word frequency list will be printed to standard out (limited by min freq, if set).
 
-Cmd line arguments:
-  path to the wikimedia dump file (file or url, xml or xml.bz2) (required)
-  -pl int   page limit: limit number of pages to read (optional, default = unset)
-  -mf int   min freq: lower limit for word frequencies to be printed (optional, default = 2)
-  -h        help: print help message
+Usage:
+ $ go run wstats.go <flags> <wikipedia dump path (file or url, xml or xml.bz2)>
+
+Cmd line flags:
+  -pl int     page limit: limit number of pages to read (optional, default = unset)
+  -mf int     min freq: lower limit for word frequencies to be printed (optional, default = 2)
+  -h          help: print help message
 
 Example usage:
-  $ go run wstats.go https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 -pl=10000
+  $ go run wstats.go -pl 10000 https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2 
+
 
 `
-	//var f = flag.NewFlagSet("wstats", flag.ExitOnError)
-	//var f = flag.NewFlagSet("wstats", flag.ContinueOnError)
-
 	var pageLimit = flag.Int("pl", -1, "page limit")
 	var minFreq = flag.Int("mf", 2, "min freq")
 	var help = flag.Bool("help", false, "print help message")
 
 	flag.Parse()
-
-	fmt.Fprintln(os.Stderr, "wstats.debug: args=", flag.Args())
 
 	if *help || len(flag.Args()) != 1 {
 		fmt.Fprint(os.Stderr, usage)
