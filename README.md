@@ -1,6 +1,8 @@
 # wstats
 
-`wstats` is a module for computing word statistics on wikipedia data. It is NOT ready for proper use, so use at your own risk
+`wstats` is used for parsing wikimedia dump files on the fly into word frequency lists.
+
+It is NOT ready for proper use, so use at your own risk.
 
 The program will print running progress and basic statistics to standard error.\nA complete word frequency list will be printed to standard out.
 

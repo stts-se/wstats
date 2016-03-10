@@ -1,3 +1,23 @@
+/*
+Package wstats is used for parsing wikimedia dump files on the fly into word frequency lists.
+
+It is NOT ready for proper use, so use at your own risk.
+
+The program will print running progress and basic statistics to standard error.\nA complete word frequency list will be printed to standard out (limited by min freq, if set).
+
+Usage:
+	$ go run wstats.go <flags> <wikipedia dump path (file or url, xml or xml.bz2)>
+
+Cmd line flags:
+	-pl int     page limit: limit number of pages to read (optional, default = unset)
+	-mf int     min freq: lower limit for word frequencies to be printed (optional, default = 2)
+	-h(elp)     help: print help message
+
+Example usage:
+	$ go run wstats.go -pl 10000 https://dumps.wikimedia.org/svwiki/latest/svwiki-latest-pages-articles-multistream.xml.bz2
+
+
+*/
 package main
 
 import (
@@ -288,7 +308,9 @@ func loadXml(path string, pageLimit int, logAt int) LoadResult {
 
 func loadCmdLineArgs() (int, int, string) {
 	var usage = `
-wstats is a sketch of/place holder for a module to compute word statistics on wikipedia data. It is NOT ready for proper use, so use at your own risk.
+wstats is used for parsing wikimedia dump files on the fly into word frequency lists.
+
+It is NOT ready for proper use, so use at your own risk.
 
 The program will print running progress and basic statistics to standard error.\nA complete word frequency list will be printed to standard out (limited by min freq, if set).
 
