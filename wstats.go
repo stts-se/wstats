@@ -36,9 +36,9 @@ import (
 )
 
 // start: util
-func SplitWhiteSpace(s string) []string {
+func splitWhiteSpace(s string) []string {
 	splitted := strings.Split(s, " ")
-	result := make([]string, 0)
+	var result = make([]string, 0)
 	for _, v := range splitted {
 		v = strings.TrimSpace(v)
 		if len(v) > 0 {
@@ -49,39 +49,39 @@ func SplitWhiteSpace(s string) []string {
 }
 
 // start: sorting
-func SortByWordCount(wordFrequencies map[string]int) FreqList {
-	pl := make(FreqList, len(wordFrequencies))
+func sortByWordCount(wordFrequencies map[string]int) freqList {
+	pl := make(freqList, len(wordFrequencies))
 	i := 0
 	for k, v := range wordFrequencies {
-		pl[i] = Freq{k, v}
+		pl[i] = freq{k, v}
 		i++
 	}
 	sort.Sort(sort.Reverse(pl))
 	return pl
 }
 
-type Freq struct {
+type freq struct {
 	Key   string
 	Value int
 }
-type FreqList []Freq
+type freqList []freq
 
-func (p FreqList) Len() int           { return len(p) }
-func (p FreqList) Less(i, j int) bool { return p[i].Value < p[j].Value }
-func (p FreqList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p freqList) Len() int           { return len(p) }
+func (p freqList) Less(i, j int) bool { return p[i].Value < p[j].Value }
+func (p freqList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 // end: sorting
 
 // end: util
 
 // start: xml parsing - http://blog.davidsingleton.org/parsing-huge-xml-files-with-go
-type Redirect struct {
-	Title string `xml:"title,attr"`
+type redirect struct {
+	title string `xml:"title,attr"`
 }
-type Page struct {
-	Title string   `xml:"title"`
-	Redir Redirect `xml:"redirect"`
-	Text  string   `xml:"revision>text"`
+type page struct {
+	title string   `xml:"title"`
+	redir redirect `xml:"redirect"`
+	text  string   `xml:"revision>text"`
 }
 
 // end: xml parsing
@@ -95,45 +95,45 @@ func convert(s string) string {
 }
 
 // start: pre-compiled regexps
-type Replacement struct {
+type replacement struct {
 	From *regexp.Regexp
 	To   string
 }
 
-var tokenReplacements = []Replacement{
-	Replacement{regexp.MustCompile("http://[^\\s]+"), ""},
-	Replacement{regexp.MustCompile("&lt;!--"), "<!--"},
-	Replacement{regexp.MustCompile("--&gt;"), "-->"},
-	Replacement{regexp.MustCompile("<!--[^>]+-->"), ""},
-	Replacement{regexp.MustCompile("(&lt;|<)/?ref( |(&gt;|>)).*$"), ""},
-	Replacement{regexp.MustCompile("&quot;"), "\""},
-	Replacement{regexp.MustCompile("&amp;"), "&"},
-	Replacement{regexp.MustCompile("^ *\\* *"), ""},
-	Replacement{regexp.MustCompile("&[a-z]+;"), ""},
-	Replacement{regexp.MustCompile("<[^>]+>"), ""},
-	Replacement{regexp.MustCompile("\\{\\{[^}]+(\\}\\}|$)"), ""},
-	Replacement{regexp.MustCompile("[{}]"), ""},
-	Replacement{regexp.MustCompile("\\[\\[Kategori:"), "[["},
-	Replacement{regexp.MustCompile("\\[\\[[A-Za-z]+:([^|\\]]+\\|)+"), "[["},
-	Replacement{regexp.MustCompile("\\[\\[([^|\\]]+)\\|?\\]\\]"), "$1"},
-	Replacement{regexp.MustCompile("\\[\\[(?:[^|\\]]+)\\|([^|\\]]+)\\]\\]"), "$1"},
-	Replacement{regexp.MustCompile("\\[\\[(?:[^|\\]]+)(?:\\|(?:[^|\\]]+))*\\|([^|\\]]+)\\]\\]"), "$1"},
-	Replacement{regexp.MustCompile("[\\[\\]]+"), ""},
-	Replacement{regexp.MustCompile("==+"), ""},
-	Replacement{regexp.MustCompile(" ' "), " "},
-	Replacement{regexp.MustCompile("(: | :)"), " "},
-	Replacement{regexp.MustCompile("[\\]\\[!\"”#$%&()*+,./;<=>?@\\^_`{|}~\\s\u00a0–]+"), " "},
-	Replacement{regexp.MustCompile("(( |^)'+|'+( |$))"), " "},
-	Replacement{regexp.MustCompile("( *- | - *)"), " "},
+var tokenReplacements = []replacement{
+	replacement{regexp.MustCompile("http://[^\\s]+"), ""},
+	replacement{regexp.MustCompile("&lt;!--"), "<!--"},
+	replacement{regexp.MustCompile("--&gt;"), "-->"},
+	replacement{regexp.MustCompile("<!--[^>]+-->"), ""},
+	replacement{regexp.MustCompile("(&lt;|<)/?ref( |(&gt;|>)).*$"), ""},
+	replacement{regexp.MustCompile("&quot;"), "\""},
+	replacement{regexp.MustCompile("&amp;"), "&"},
+	replacement{regexp.MustCompile("^ *\\* *"), ""},
+	replacement{regexp.MustCompile("&[a-z]+;"), ""},
+	replacement{regexp.MustCompile("<[^>]+>"), ""},
+	replacement{regexp.MustCompile("\\{\\{[^}]+(\\}\\}|$)"), ""},
+	replacement{regexp.MustCompile("[{}]"), ""},
+	replacement{regexp.MustCompile("\\[\\[Kategori:"), "[["},
+	replacement{regexp.MustCompile("\\[\\[[A-Za-z]+:([^|\\]]+\\|)+"), "[["},
+	replacement{regexp.MustCompile("\\[\\[([^|\\]]+)\\|?\\]\\]"), "$1"},
+	replacement{regexp.MustCompile("\\[\\[(?:[^|\\]]+)\\|([^|\\]]+)\\]\\]"), "$1"},
+	replacement{regexp.MustCompile("\\[\\[(?:[^|\\]]+)(?:\\|(?:[^|\\]]+))*\\|([^|\\]]+)\\]\\]"), "$1"},
+	replacement{regexp.MustCompile("[\\[\\]]+"), ""},
+	replacement{regexp.MustCompile("==+"), ""},
+	replacement{regexp.MustCompile(" ' "), " "},
+	replacement{regexp.MustCompile("(: | :)"), " "},
+	replacement{regexp.MustCompile("[\\]\\[!\"”#$%&()*+,./;<=>?@\\^_`{|}~\\s\u00a0–]+"), " "},
+	replacement{regexp.MustCompile("(( |^)'+|'+( |$))"), " "},
+	replacement{regexp.MustCompile("( *- | - *)"), " "},
 }
-var lineReplacements = []Replacement{
-	Replacement{regexp.MustCompile("&lt;"), "<"},
-	Replacement{regexp.MustCompile("&gt;"), ">"},
-	Replacement{regexp.MustCompile("&quot;"), "\""},
-	Replacement{regexp.MustCompile("&amp;"), "&"},
-	Replacement{regexp.MustCompile("^ *<text[^>]*>"), ""},
-	Replacement{regexp.MustCompile("#REDIRECT "), ""},
-	Replacement{regexp.MustCompile("^ *:;?"), ""},
+var lineReplacements = []replacement{
+	replacement{regexp.MustCompile("&lt;"), "<"},
+	replacement{regexp.MustCompile("&gt;"), ">"},
+	replacement{regexp.MustCompile("&quot;"), "\""},
+	replacement{regexp.MustCompile("&amp;"), "&"},
+	replacement{regexp.MustCompile("^ *<text[^>]*>"), ""},
+	replacement{regexp.MustCompile("#REDIRECT "), ""},
+	replacement{regexp.MustCompile("^ *:;?"), ""},
 }
 var skipRe = regexp.MustCompile("^ *(!|\\||<|\\{\\||&|<redirect[^>]+>).*")
 
@@ -141,7 +141,7 @@ var skipRe = regexp.MustCompile("^ *(!|\\||<|\\{\\||&|<redirect[^>]+>).*")
 
 func tokenizeLine(l string) []string {
 	l = convert(l)
-	return SplitWhiteSpace(l)
+	return splitWhiteSpace(l)
 }
 
 func preFilterLine(l string) string {
@@ -170,10 +170,10 @@ func lIntRoundToString(i int) string {
 
 func lIntPrettyPrint(i int) string {
 	result := fmt.Sprintf("%d", i)
-	replacements := []Replacement{
-		Replacement{regexp.MustCompile("([0-9])([0-9]{3})([0-9]{3})([0-9]{3})$"), "$1,$2,$3,$4"},
-		Replacement{regexp.MustCompile("([0-9])([0-9]{3})([0-9]{3})$"), "$1,$2,$3"},
-		Replacement{regexp.MustCompile("([0-9])([0-9]{3})$"), "$1,$2"},
+	replacements := []replacement{
+		replacement{regexp.MustCompile("([0-9])([0-9]{3})([0-9]{3})([0-9]{3})$"), "$1,$2,$3,$4"},
+		replacement{regexp.MustCompile("([0-9])([0-9]{3})([0-9]{3})$"), "$1,$2,$3"},
+		replacement{regexp.MustCompile("([0-9])([0-9]{3})$"), "$1,$2"},
 	}
 	for _, repl := range replacements {
 		result = repl.From.ReplaceAllString(result, repl.To)
@@ -216,16 +216,16 @@ func tokenizeText(text string) (nLines int, nLinesSkipped int, wordFreqs map[str
 	return nLines, nLinesSkipped, wordFreqs
 }
 
-type LoadResult struct {
-	NPages        int
-	NRedirects    int
-	NLines        int
-	NLinesSkipped int
-	NWords        int
-	WordFreqs     map[string]int
+type loadResult struct {
+	nPages        int
+	nRedirects    int
+	nLines        int
+	nLinesSkipped int
+	nWords        int
+	wordFreqs     map[string]int
 }
 
-func loadXml(path string, pageLimit int, logAt int) LoadResult {
+func loadXML(path string, pageLimit int, logAt int) loadResult {
 	var decoder *xml.Decoder
 	if strings.HasPrefix(path, "http") {
 		response, err := http.Get(path)
@@ -256,49 +256,49 @@ func loadXml(path string, pageLimit int, logAt int) LoadResult {
 		}
 	}
 
-	var result = LoadResult{}
-	result.NLines = 0
-	result.NLinesSkipped = 0
-	result.NPages = 0
-	result.NRedirects = 0
-	result.NWords = 0
-	result.WordFreqs = make(map[string]int)
+	var result = loadResult{}
+	result.nLines = 0
+	result.nLinesSkipped = 0
+	result.nPages = 0
+	result.nRedirects = 0
+	result.nWords = 0
+	result.wordFreqs = make(map[string]int)
 
 	for {
 		t, _ := decoder.Token()
 		if t == nil {
 			break
 		}
-		if pageLimit > 0 && result.NPages >= pageLimit {
+		if pageLimit > 0 && result.nPages >= pageLimit {
 			clearProgress()
-			log.Println(fmt.Sprintf("Break called at %d pages (limit set by user)", result.NPages))
+			log.Println(fmt.Sprintf("Break called at %d pages (limit set by user)", result.nPages))
 			break
 		}
 		switch se := t.(type) {
 		case xml.StartElement:
 			if se.Name.Local == "page" {
-				var p Page
-				result.NPages++
+				var p page
+				result.nPages++
 				decoder.DecodeElement(&p, &se)
-				var text = p.Text
-				var title = p.Title
+				var text = p.text
+				var title = p.title
 				if len(title) > 0 {
 					text = title + "\n" + text
 				}
-				var redirect = p.Redir.Title
+				var redirect = p.redir.title
 				if len(redirect) > 0 {
-					result.NRedirects++
+					result.nRedirects++
 				} else {
 					nL, nLS, wFs := tokenizeText(text)
-					result.NLines += nL
-					result.NLinesSkipped += nLS
+					result.nLines += nL
+					result.nLinesSkipped += nLS
 					for w, f := range wFs {
-						result.NWords += f
-						result.WordFreqs[w] += f
+						result.nWords += f
+						result.wordFreqs[w] += f
 					}
 				}
-				if result.NPages%logAt == 0 {
-					printProgress(result.NPages, result.NLines, result.NWords)
+				if result.nPages%logAt == 0 {
+					printProgress(result.nPages, result.nLines, result.nWords)
 				}
 			}
 		}
@@ -380,11 +380,11 @@ func main() {
 	defer output.Flush()
 
 	logAt := 100
-	result := loadXml(path, pageLimit, logAt)
+	result := loadXML(path, pageLimit, logAt)
 
 	loaded := time.Now()
 
-	for _, pair := range SortByWordCount(result.WordFreqs) {
+	for _, pair := range sortByWordCount(result.wordFreqs) {
 		if pair.Value >= minFreq {
 			fmt.Fprintf(output, "%d\t%s\n", pair.Value, pair.Key)
 		}
@@ -403,11 +403,11 @@ func main() {
 	log.Print("Print took           : ", fmt.Sprintf("%12v\n", printDur))
 	log.Print("Total dur            : ", fmt.Sprintf("%12v\n", totalDur))
 
-	log.Print("No. of pages         : ", lIntPrettyPrint(result.NPages))
-	log.Print("No. of redirects     : ", lIntPrettyPrint(result.NRedirects))
-	log.Print("No. of lines         : ", lIntPrettyPrint(result.NLines))
-	log.Print("No. of skipped lines : ", lIntPrettyPrint(result.NLinesSkipped))
-	log.Print("No. of words         : ", lIntPrettyPrint(result.NWords))
-	log.Print("No. of unique words  : ", lIntPrettyPrint(len(result.WordFreqs)))
+	log.Print("No. of pages         : ", lIntPrettyPrint(result.nPages))
+	log.Print("No. of redirects     : ", lIntPrettyPrint(result.nRedirects))
+	log.Print("No. of lines         : ", lIntPrettyPrint(result.nLines))
+	log.Print("No. of skipped lines : ", lIntPrettyPrint(result.nLinesSkipped))
+	log.Print("No. of words         : ", lIntPrettyPrint(result.nWords))
+	log.Print("No. of unique words  : ", lIntPrettyPrint(len(result.wordFreqs)))
 
 }
