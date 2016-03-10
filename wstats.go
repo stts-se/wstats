@@ -1,5 +1,5 @@
 /*
-Package wstats is used for parsing wikimedia dump files on the fly into word frequency lists.
+wstats is used for parsing wikimedia dump files on the fly into word frequency lists.
 
 It is NOT ready for proper use, so use at your own risk.
 
