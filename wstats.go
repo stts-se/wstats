@@ -3,7 +3,8 @@ wstats is used for parsing wikimedia dump files on the fly into word frequency l
 
 It is NOT ready for proper use, so use at your own risk.
 
-The program will print running progress and basic statistics to standard error.\nA complete word frequency list will be printed to standard out (limited by min freq, if set).
+The program will print running progress and basic statistics to standard error.
+A complete word frequency list will be printed to standard out (limited by min freq, if set).
 
 Usage:
 	$ go run wstats.go <flags> <wikipedia dump path (file or url, xml or xml.bz2)>
@@ -19,6 +20,8 @@ Example usage:
 
 */
 package main
+
+// BUG(hanna) More tests should be added, not just for smaller functions, but also for the overall parsing functionality.
 
 import (
 	"bufio"
@@ -74,17 +77,19 @@ func (p freqList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 // end: util
 
-// start: xml parsing - http://blog.davidsingleton.org/parsing-huge-xml-files-with-go
 type redirect struct {
 	title string `xml:"title,attr"`
 }
+
+/*
+Page is used in xml parsing.
+For implementation details, please see - http://blog.davidsingleton.org/parsing-huge-xml-files-with-go
+*/
 type page struct {
 	title string   `xml:"title"`
 	redir redirect `xml:"redirect"`
-	text  string   `xml:"revision>text"`
+	Text  string   `xml:"revision>text"`
 }
-
-// end: xml parsing
 
 func convert(s string) string {
 	result := s
@@ -280,7 +285,7 @@ func loadXML(path string, pageLimit int, logAt int) loadResult {
 				var p page
 				result.nPages++
 				decoder.DecodeElement(&p, &se)
-				var text = p.text
+				var text = p.Text
 				var title = p.title
 				if len(title) > 0 {
 					text = title + "\n" + text
