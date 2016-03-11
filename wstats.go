@@ -78,17 +78,18 @@ func (p freqList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 // end: util
 
-type redirect struct {
-	title string `xml:"title,attr"`
+// Redirect is used for xml parsing (see Page below)
+type Redirect struct {
+	Title string `xml:"title,attr"`
 }
 
 /*
 Page is used in xml parsing.
 For implementation details, please see - http://blog.davidsingleton.org/parsing-huge-xml-files-with-go
 */
-type page struct {
-	title string   `xml:"title"`
-	redir redirect `xml:"redirect"`
+type Page struct {
+	Title string   `xml:"title"`
+	Redir Redirect `xml:"redirect"`
 	Text  string   `xml:"revision>text"`
 }
 
@@ -283,15 +284,15 @@ func loadXML(path string, pageLimit int, logAt int) loadResult {
 		switch se := t.(type) {
 		case xml.StartElement:
 			if se.Name.Local == "page" {
-				var p page
+				var p Page
 				result.nPages++
 				decoder.DecodeElement(&p, &se)
 				var text = p.Text
-				var title = p.title
+				var title = p.Title
 				if len(title) > 0 {
 					text = title + "\n" + text
 				}
-				var redirect = p.redir.title
+				var redirect = p.Redir.Title
 				if len(redirect) > 0 {
 					result.nRedirects++
 				} else {
