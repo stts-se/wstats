@@ -21,6 +21,7 @@ Example usage:
 */
 package main
 
+// BUG(hanna) Clean/check for junk in words
 // BUG(hanna) More tests should be added, not just for smaller functions, but also for the overall parsing functionality.
 // BUG(hanna) Specifically, tests are needed to detect if the xml parsing won't find any pages (known to happen when editing case for the field names)
 
