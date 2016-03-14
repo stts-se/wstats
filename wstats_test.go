@@ -8,7 +8,6 @@ import (
 )
 
 var fsExp = "Xpctd: '%v' got: '%v'"
-var fsDidntExp = "Didn't expect: '%v'"
 
 func testConvert(input string) string {
 	input = preFilterLine(input)
