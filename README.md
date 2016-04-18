@@ -29,3 +29,8 @@ Wikipedia dumps: https://dumps.wikimedia.org/backup-index.html
 
 <br/>
 Xml parsing inspired by: http://blog.davidsingleton.org/parsing-huge-xml-files-with-go
+
+<br/>
+## wfreqs2gnuplot.scala
+Scala script to generate a gnuplot eps file from the wstats output (word frequency list).
+Requires: scala, gnuplot
