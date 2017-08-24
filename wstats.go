@@ -109,39 +109,39 @@ type replacement struct {
 }
 
 var tokenReplacements = []replacement{
-	replacement{regexp.MustCompile("http://[^\\s]+"), ""},
-	replacement{regexp.MustCompile("&lt;!--"), "<!--"},
-	replacement{regexp.MustCompile("--&gt;"), "-->"},
-	replacement{regexp.MustCompile("<!--[^>]+-->"), ""},
-	replacement{regexp.MustCompile("(&lt;|<)/?ref( |(&gt;|>)).*$"), ""},
-	replacement{regexp.MustCompile("&quot;"), "\""},
-	replacement{regexp.MustCompile("&amp;"), "&"},
-	replacement{regexp.MustCompile("^ *\\* *"), ""},
-	replacement{regexp.MustCompile("&[a-z]+;"), ""},
-	replacement{regexp.MustCompile("<[^>]+>"), ""},
-	replacement{regexp.MustCompile("\\{\\{[^}]+(\\}\\}|$)"), ""},
-	replacement{regexp.MustCompile("[{}]"), ""},
-	replacement{regexp.MustCompile("\\[\\[Kategori:"), "[["},
-	replacement{regexp.MustCompile("\\[\\[[A-Za-z]+:([^|\\]]+\\|)+"), "[["},
-	replacement{regexp.MustCompile("\\[\\[([^|\\]]+)\\|?\\]\\]"), "$1"},
-	replacement{regexp.MustCompile("\\[\\[(?:[^|\\]]+)\\|([^|\\]]+)\\]\\]"), "$1"},
-	replacement{regexp.MustCompile("\\[\\[(?:[^|\\]]+)(?:\\|(?:[^|\\]]+))*\\|([^|\\]]+)\\]\\]"), "$1"},
-	replacement{regexp.MustCompile("[\\[\\]]+"), ""},
-	replacement{regexp.MustCompile("==+"), ""},
-	replacement{regexp.MustCompile(" ' "), " "},
-	replacement{regexp.MustCompile("(: | :)"), " "},
-	replacement{regexp.MustCompile("[\\]\\[!\"”#$%&()*+,./;<=>?@\\^_`{|}~\\s\u00a0–]+"), " "},
-	replacement{regexp.MustCompile("(( |^)'+|'+( |$))"), " "},
-	replacement{regexp.MustCompile("( *- | - *)"), " "},
+	{regexp.MustCompile("http://[^\\s]+"), ""},
+	{regexp.MustCompile("&lt;!--"), "<!--"},
+	{regexp.MustCompile("--&gt;"), "-->"},
+	{regexp.MustCompile("<!--[^>]+-->"), ""},
+	{regexp.MustCompile("(&lt;|<)/?ref( |(&gt;|>)).*$"), ""},
+	{regexp.MustCompile("&quot;"), "\""},
+	{regexp.MustCompile("&amp;"), "&"},
+	{regexp.MustCompile("^ *\\* *"), ""},
+	{regexp.MustCompile("&[a-z]+;"), ""},
+	{regexp.MustCompile("<[^>]+>"), ""},
+	{regexp.MustCompile("\\{\\{[^}]+(\\}\\}|$)"), ""},
+	{regexp.MustCompile("[{}]"), ""},
+	{regexp.MustCompile("\\[\\[Kategori:"), "[["},
+	{regexp.MustCompile("\\[\\[[A-Za-z]+:([^|\\]]+\\|)+"), "[["},
+	{regexp.MustCompile("\\[\\[([^|\\]]+)\\|?\\]\\]"), "$1"},
+	{regexp.MustCompile("\\[\\[(?:[^|\\]]+)\\|([^|\\]]+)\\]\\]"), "$1"},
+	{regexp.MustCompile("\\[\\[(?:[^|\\]]+)(?:\\|(?:[^|\\]]+))*\\|([^|\\]]+)\\]\\]"), "$1"},
+	{regexp.MustCompile("[\\[\\]]+"), ""},
+	{regexp.MustCompile("==+"), ""},
+	{regexp.MustCompile(" ' "), " "},
+	{regexp.MustCompile("(: | :)"), " "},
+	{regexp.MustCompile("[\\]\\[!\"”#$%&()*+,./;<=>?@\\^_`{|}~\\s\u00a0–]+"), " "},
+	{regexp.MustCompile("(( |^)'+|'+( |$))"), " "},
+	{regexp.MustCompile("( *- | - *)"), " "},
 }
 var lineReplacements = []replacement{
-	replacement{regexp.MustCompile("&lt;"), "<"},
-	replacement{regexp.MustCompile("&gt;"), ">"},
-	replacement{regexp.MustCompile("&quot;"), "\""},
-	replacement{regexp.MustCompile("&amp;"), "&"},
-	replacement{regexp.MustCompile("^ *<text[^>]*>"), ""},
-	replacement{regexp.MustCompile("#REDIRECT "), ""},
-	replacement{regexp.MustCompile("^ *:;?"), ""},
+	{regexp.MustCompile("&lt;"), "<"},
+	{regexp.MustCompile("&gt;"), ">"},
+	{regexp.MustCompile("&quot;"), "\""},
+	{regexp.MustCompile("&amp;"), "&"},
+	{regexp.MustCompile("^ *<text[^>]*>"), ""},
+	{regexp.MustCompile("#REDIRECT "), ""},
+	{regexp.MustCompile("^ *:;?"), ""},
 }
 var skipRe = regexp.MustCompile("^ *(!|\\||<|\\{\\||&|<redirect[^>]+>).*")
 
@@ -179,9 +179,9 @@ func lIntRoundToString(i int) string {
 func lIntPrettyPrint(i int) string {
 	result := fmt.Sprintf("%d", i)
 	replacements := []replacement{
-		replacement{regexp.MustCompile("([0-9])([0-9]{3})([0-9]{3})([0-9]{3})$"), "$1,$2,$3,$4"},
-		replacement{regexp.MustCompile("([0-9])([0-9]{3})([0-9]{3})$"), "$1,$2,$3"},
-		replacement{regexp.MustCompile("([0-9])([0-9]{3})$"), "$1,$2"},
+		{regexp.MustCompile("([0-9])([0-9]{3})([0-9]{3})([0-9]{3})$"), "$1,$2,$3,$4"},
+		{regexp.MustCompile("([0-9])([0-9]{3})([0-9]{3})$"), "$1,$2,$3"},
+		{regexp.MustCompile("([0-9])([0-9]{3})$"), "$1,$2"},
 	}
 	for _, repl := range replacements {
 		result = repl.From.ReplaceAllString(result, repl.To)
