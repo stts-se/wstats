@@ -109,6 +109,10 @@ type replacement struct {
 }
 
 var tokenReplacements = []replacement{
+	// '''
+	{regexp.MustCompile("'''"), "\""},
+	{regexp.MustCompile("''"), "\""},
+	{regexp.MustCompile("[«»]"), "\""},
 	{regexp.MustCompile("http://[^\\s]+"), ""},
 	{regexp.MustCompile("&lt;!--"), "<!--"},
 	{regexp.MustCompile("--&gt;"), "-->"},
@@ -121,7 +125,7 @@ var tokenReplacements = []replacement{
 	{regexp.MustCompile("<[^>]+>"), ""},
 	{regexp.MustCompile("\\{\\{[^}]+(\\}\\}|$)"), ""},
 	{regexp.MustCompile("[{}]"), ""},
-	{regexp.MustCompile("\\[\\[Kategori:"), "[["},
+	{regexp.MustCompile("\\[\\[(Kategori|категория):"), "[["},
 	{regexp.MustCompile("\\[\\[[A-Za-z]+:([^|\\]]+\\|)+"), "[["},
 	{regexp.MustCompile("\\[\\[([^|\\]]+)\\|?\\]\\]"), "$1"},
 	{regexp.MustCompile("\\[\\[(?:[^|\\]]+)\\|([^|\\]]+)\\]\\]"), "$1"},
