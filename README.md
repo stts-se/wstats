@@ -32,6 +32,12 @@ Xml parsing inspired by: http://blog.davidsingleton.org/parsing-huge-xml-files-w
 
 <br/>
 
+## List of (some) Wikipedia dump files
+
+    https://dumps.wikimedia.org/elwiki/latest/elwiki-latest-pages-articles-multistream.xml.bz2
+    https://dumps.wikimedia.org/ruwiki/latest/ruwiki-latest-pages-articles-multistream.xml.bz2
+
+
 ## wfreqs2gnuplot.scala
 Scala script to generate a gnuplot eps file from the wstats output (word frequency list).
 Requires: scala, gnuplot
