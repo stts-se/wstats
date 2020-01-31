@@ -331,7 +331,7 @@ Usage:
 
 Cmd line flags:
   -pl int     page limit: limit number of pages to read (optional, default = unset)
-  -mf int     min freq: lower limit for word frequencies to be printed (optional, default = 2)
+  -mf int     min freq: lower limit for word frequencies to be printed (optional, default = 0)
   -h(elp)     help: print help message
 
 Example usage:
@@ -341,7 +341,7 @@ Example usage:
 
 	var f = flag.NewFlagSet("wstats", flag.ExitOnError)
 	var pageLimit = f.Int("pl", -1, "page limit")
-	var minFreq = f.Int("mf", 2, "min freq")
+	var minFreq = f.Int("mf", 0, "min freq")
 
 	var args = os.Args
 	if strings.HasSuffix(args[0], "wstats") {
