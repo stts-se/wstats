@@ -15,7 +15,7 @@ Usage:
 Cmd line flags:
 
      -pl int    page limit: limit number of pages to read (optional, default = unset)
-     -mf int    min freq: lower limit for word frequencies to be printed (optional, default = 2)
+     -mf int    min freq: lower limit for word frequencies to be printed (optional, default = 0)
      -h(elp)    help: print help message
 
 Example usage:
