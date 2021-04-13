@@ -2,8 +2,6 @@
 
 `wstats` is used for parsing wikimedia dump files on the fly into word frequency lists.
 
-It is NOT ready for proper use, so use at your own risk.
-
 The program will print running progress and basic statistics to standard error.
 A complete word frequency list will be printed to standard out.
 
