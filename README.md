@@ -5,6 +5,8 @@
 The program will print running progress and basic statistics to standard error.
 A complete word frequency list will be printed to standard out.
 
+There is no guarantee that all words of the actual Wikipedia article texts are conunted, partly because there is no expansion of templates, etc, of the dump file.
+
 
 Usage:
 
