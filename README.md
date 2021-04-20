@@ -41,3 +41,6 @@ Xml parsing inspired by: http://blog.davidsingleton.org/parsing-huge-xml-files-w
 ## wfreqs2gnuplot.scala
 Scala script to generate a gnuplot eps file from the wstats output (word frequency list).
 Requires: scala, gnuplot
+
+---
+_This work was supported by the Swedish Post and Telecom Authority (PTS) through the grant "Wikispeech – en användargenererad talsyntes på Wikipedia" (2016–2017)._
